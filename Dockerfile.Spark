@@ -1,0 +1,6 @@
+FROM bitnami/spark:3.5
+
+# USER root
+# ENV HOME=/opt/bitnami/spark
+
+# USER 1001

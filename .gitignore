@@ -4,3 +4,4 @@ __pycache__/
 
 shared/*
 logs/*
+minio_data/*

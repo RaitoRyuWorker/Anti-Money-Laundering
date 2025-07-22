@@ -4,7 +4,7 @@ x-spark-common: &spark-common
   # build:
   #   context: .
   #   dockerfile: Dockerfile.Spark
-  image: bitnami/spark:3.5
+  image: bitnami/spark:3.5.0
   environment:
     - SPARK_RPC_AUTHENTICATION_ENABLED=no
     - SPARK_RPC_ENCRYPTION_ENABLED=no
@@ -35,6 +35,7 @@ services:
   postgres:
     image: postgres:14.0
     container_name: postgres
+    restart: always
     environment:
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: airflow
@@ -49,6 +50,7 @@ services:
   minio:
     image: minio/minio:latest
     container_name: minio
+    restart: always
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -57,7 +59,7 @@ services:
       MINIO_ROOT_PASSWORD: secret_key
     command: server /data --console-address ":9001"
     volumes:
-      - minio_data:/data
+      - ./minio_data:/data
     networks:
       - bigdata-net
 
@@ -76,6 +78,7 @@ services:
   spark-master:
     <<: *spark-common
     container_name: spark-master
+    restart: always
     command: bin/spark-class org.apache.spark.deploy.master.Master
     ports:
       - "9090:8080"
@@ -84,6 +87,7 @@ services:
   spark-worker-1:
     <<: *spark-common
     container_name: spark-worker-1
+    restart: always
     command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
     depends_on:
       - spark-master
@@ -98,6 +102,7 @@ services:
   spark-worker-2:
     <<: *spark-common
     container_name: spark-worker-2
+    restart: always
     command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
     depends_on:
       - spark-master
@@ -112,6 +117,7 @@ services:
   airflow-webserver:
     <<: *airflow-common
     container_name: airflow-webserver
+    restart: always
     ports:
       - "8080:8080"
     command: webserver
@@ -121,6 +127,7 @@ services:
   airflow-scheduler:
     <<: *airflow-common
     container_name: airflow-scheduler
+    restart: always
     command: bash -c "airflow db migrate && airflow users create --username airflow --firstname Long --lastname Nguyen --role Admin --email long.nguyen@ecotruck.vn --password airflow && airflow scheduler"
     # command: bash -c "airflow scheduler"
 
@@ -128,5 +135,5 @@ networks:
     bigdata-net:
 
 volumes:
-    minio_data:
+    # minio_data:
     airflow-db-data:
